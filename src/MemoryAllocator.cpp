@@ -3,7 +3,7 @@
 
 MemoryAllocator MemoryAllocator::instance;
 
-MemoryAllocator& MemoryAllocator::getInstance()
+MemoryAllocator &MemoryAllocator::getInstance()
 {
     return instance;
 }
@@ -14,40 +14,43 @@ void MemoryAllocator::init()
     {
         printString("Already initialized\n");
         return;
+    }else
+    {
+        printString("Initializing memory allocator\n");
     }
 
-    freeMemHead = (BlockHeader*)HEAP_START_ADDR;
+    freeMemHead = (BlockHeader *) HEAP_START_ADDR;
     freeMemHead->next = nullptr;
 
     size_t heapSize =
-        (char*)HEAP_END_ADDR -
-        (char*)HEAP_START_ADDR;
+            (char *) HEAP_END_ADDR -
+            (char *) HEAP_START_ADDR;
 
     // Ceo slobodan prostor zaokruži naniže na cele blokove.
     heapSize =
-        (heapSize / MEM_BLOCK_SIZE) * MEM_BLOCK_SIZE;
+            (heapSize / MEM_BLOCK_SIZE) * MEM_BLOCK_SIZE;
 
     freeMemHead->size = heapSize;
-    printInteger((uint64)sizeof(BlockHeader));
+    //printInteger((uint64) sizeof(BlockHeader));
 }
 
-void* MemoryAllocator::mem_alloc(size_t size)
+void *MemoryAllocator::mem_alloc(size_t size)
 {
-    if (size == 0)
+    if (size == 0 || size > (size_t)((char *) HEAP_END_ADDR - (char *) HEAP_START_ADDR) )
         return nullptr;
 
     // Ukupna veličina = header + korisnički zahtev.
     const size_t requestedSize =
-        sizeof(BlockHeader) + size;
+            sizeof(BlockHeader) + size;
 
     // Zaokruživanje CELOG regiona na MEM_BLOCK_SIZE.
     const size_t allocSize =
-        ((requestedSize + MEM_BLOCK_SIZE - 1) / MEM_BLOCK_SIZE)
-        * MEM_BLOCK_SIZE;
+            ((requestedSize + MEM_BLOCK_SIZE - 1) / MEM_BLOCK_SIZE)
+            * MEM_BLOCK_SIZE;
 
     // First fit
-    BlockHeader* blk = freeMemHead;
-    BlockHeader* prev = nullptr;
+    BlockHeader *blk = freeMemHead;
+    BlockHeader *prev = nullptr;
 
     for (; blk != nullptr; prev = blk, blk = blk->next)
     {
@@ -59,14 +62,14 @@ void* MemoryAllocator::mem_alloc(size_t size)
         return nullptr;
 
     const size_t remainingSize =
-        blk->size - allocSize;
+            blk->size - allocSize;
 
     // Ako ostaje bar jedan ceo blok,
     // možemo napraviti novi slobodan blok.
     if (remainingSize >= MEM_BLOCK_SIZE)
     {
-        BlockHeader* newBlk =
-            (BlockHeader*)((char*)blk + allocSize);
+        BlockHeader *newBlk =
+                (BlockHeader *) ((char *) blk + allocSize);
 
         newBlk->size = remainingSize;
         newBlk->next = blk->next;
@@ -79,8 +82,7 @@ void* MemoryAllocator::mem_alloc(size_t size)
         // blk je sada zauzet.
         blk->size = allocSize;
         blk->next = nullptr;
-    }
-    else
+    } else
     {
         // Uzimamo ceo slobodan blok.
         if (prev)
@@ -92,10 +94,61 @@ void* MemoryAllocator::mem_alloc(size_t size)
     }
 
     // Preskačemo header i vraćamo korisniku njegov deo.
-    return (char*)blk + sizeof(BlockHeader);
+    return (char *) blk + sizeof(BlockHeader);
 }
 
-int MemoryAllocator::mem_free(void* ptr)
+int MemoryAllocator::tryToJoin(BlockHeader *current)
 {
+    if (!current) return 0;
+
+    if (current->next && (char *) current + current->size == (char *) current->next)
+    {
+        current->size += current->next->size;
+        current->next = current->next->next;
+        return 1;
+    } else
+        return 0;
+}
+
+
+int MemoryAllocator::mem_free(void *ptr)
+{
+    if (ptr == nullptr || ptr < (void *) HEAP_START_ADDR || ptr >= (void *) HEAP_END_ADDR)
+    {
+        //printString("ERR ptr\n");
+        return -1;
+    }
+
+    BlockHeader *blk = (BlockHeader *) ((char *) ptr - sizeof(BlockHeader));
+
+    if (blk->size <= 0)
+    {
+        //printString("ERR blk\n");
+        return -2;
+    }
+
+    /*printString("BLK\n");
+    printInteger((uint64) blk);
+    printString("\nBLK\n");*/
+
+    BlockHeader *current = nullptr;
+
+    if (!freeMemHead || (char *) blk < (char *) freeMemHead)
+    {
+        current = nullptr;
+    } else
+    {
+        for (current = freeMemHead; current->next && (char *) blk > (char *) (current->next); current = current->next);
+    }
+
+    if (current)blk->next = current->next;
+    else blk->next = freeMemHead;
+    if (current) current->next = blk;
+    else freeMemHead = blk;
+
+    tryToJoin(blk);
+    tryToJoin(current);
+
     return 0;
 }
+

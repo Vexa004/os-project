@@ -31,6 +31,8 @@ public:
 private:
     static MemoryAllocator instance;
 
+    int tryToJoin(BlockHeader *current);
+
     BlockHeader *freeMemHead;
 
     MemoryAllocator() : freeMemHead(nullptr)
