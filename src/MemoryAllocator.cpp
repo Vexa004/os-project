@@ -1,13 +1,9 @@
-//
-// Created by os on 8/17/26.
-//
-
 #include "../h/MemoryAllocator.hpp"
 #include "../h/print.hpp"
 
 MemoryAllocator MemoryAllocator::instance;
 
-MemoryAllocator &MemoryAllocator::getInstance()
+MemoryAllocator& MemoryAllocator::getInstance()
 {
     return instance;
 }
@@ -20,56 +16,86 @@ void MemoryAllocator::init()
         return;
     }
 
-    freeMemHead = (BlockHeader *) HEAP_START_ADDR;
-
+    freeMemHead = (BlockHeader*)HEAP_START_ADDR;
     freeMemHead->next = nullptr;
-    freeMemHead->size =
-            (char *) HEAP_END_ADDR -
-            (char *) HEAP_START_ADDR -
-            sizeof(BlockHeader);
+
+    size_t heapSize =
+        (char*)HEAP_END_ADDR -
+        (char*)HEAP_START_ADDR;
+
+    // Ceo slobodan prostor zaokruži naniže na cele blokove.
+    heapSize =
+        (heapSize / MEM_BLOCK_SIZE) * MEM_BLOCK_SIZE;
+
+    freeMemHead->size = heapSize;
+    printInteger((uint64)sizeof(BlockHeader));
 }
 
-void *MemoryAllocator::mem_alloc(size_t size)
+void* MemoryAllocator::mem_alloc(size_t size)
 {
-    if (size <= 0)
+    if (size == 0)
         return nullptr;
-    const size_t numOfBlocks = (size + MEM_BLOCK_SIZE - 1) / MEM_BLOCK_SIZE;
 
-    BlockHeader *blk = freeMemHead, *prev = nullptr;
+    // Ukupna veličina = header + korisnički zahtev.
+    const size_t requestedSize =
+        sizeof(BlockHeader) + size;
+
+    // Zaokruživanje CELOG regiona na MEM_BLOCK_SIZE.
+    const size_t allocSize =
+        ((requestedSize + MEM_BLOCK_SIZE - 1) / MEM_BLOCK_SIZE)
+        * MEM_BLOCK_SIZE;
+
+    // First fit
+    BlockHeader* blk = freeMemHead;
+    BlockHeader* prev = nullptr;
 
     for (; blk != nullptr; prev = blk, blk = blk->next)
-        if (blk->size >= numOfBlocks * MEM_BLOCK_SIZE)break;
-
-    //printInteger((uint64)freeMemHead->size);
-
-    if (blk == nullptr) return nullptr;
-
-    size_t allocSize = numOfBlocks * MEM_BLOCK_SIZE;
-    size_t remainingSize = blk->size - allocSize;
-    if (remainingSize >= sizeof(BlockHeader) + MEM_BLOCK_SIZE)
     {
-        blk->size = allocSize;
-        size_t offset = sizeof(BlockHeader) + allocSize;
-        BlockHeader *newBlk = (BlockHeader*)((char*)blk + offset);
-        if (prev)prev->next = newBlk;
-        else freeMemHead = newBlk;
-        newBlk->next = blk->next;
-        newBlk->size = remainingSize-sizeof(BlockHeader);
-    }else
-    {
-        if (prev)prev->next = blk->next;
-        else freeMemHead = blk->next;
+        if (blk->size >= allocSize)
+            break;
     }
 
+    if (blk == nullptr)
+        return nullptr;
 
-    // printInteger((uint64)freeMemHead);
-    // printString("\n");
-    // printInteger((uint64)blk);
-    blk->next = nullptr;
-    return (char *) blk + sizeof(BlockHeader);
+    const size_t remainingSize =
+        blk->size - allocSize;
+
+    // Ako ostaje bar jedan ceo blok,
+    // možemo napraviti novi slobodan blok.
+    if (remainingSize >= MEM_BLOCK_SIZE)
+    {
+        BlockHeader* newBlk =
+            (BlockHeader*)((char*)blk + allocSize);
+
+        newBlk->size = remainingSize;
+        newBlk->next = blk->next;
+
+        if (prev)
+            prev->next = newBlk;
+        else
+            freeMemHead = newBlk;
+
+        // blk je sada zauzet.
+        blk->size = allocSize;
+        blk->next = nullptr;
+    }
+    else
+    {
+        // Uzimamo ceo slobodan blok.
+        if (prev)
+            prev->next = blk->next;
+        else
+            freeMemHead = blk->next;
+
+        blk->next = nullptr;
+    }
+
+    // Preskačemo header i vraćamo korisniku njegov deo.
+    return (char*)blk + sizeof(BlockHeader);
 }
 
-int MemoryAllocator::mem_free(void *ptr)
+int MemoryAllocator::mem_free(void* ptr)
 {
     return 0;
 }

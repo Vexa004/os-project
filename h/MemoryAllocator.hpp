@@ -37,7 +37,11 @@ private:
     {
     }
 
-
+    static size_t getHeaderSize()
+    {
+        return ((sizeof(BlockHeader) + MEM_BLOCK_SIZE - 1)
+                / MEM_BLOCK_SIZE) * MEM_BLOCK_SIZE;
+    }
 };
 
 
