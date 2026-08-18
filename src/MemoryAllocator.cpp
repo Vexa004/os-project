@@ -14,7 +14,7 @@ void MemoryAllocator::init()
     {
         printString("Already initialized\n");
         return;
-    }else
+    } else
     {
         printString("Initializing memory allocator\n");
     }
@@ -36,7 +36,7 @@ void MemoryAllocator::init()
 
 void *MemoryAllocator::mem_alloc(size_t size)
 {
-    if (size == 0 || size > (size_t)((char *) HEAP_END_ADDR - (char *) HEAP_START_ADDR) )
+    if (size == 0 || size > (size_t) ((char *) HEAP_END_ADDR - (char *) HEAP_START_ADDR))
         return nullptr;
 
     // Ukupna veličina = header + korisnički zahtev.
@@ -58,7 +58,7 @@ void *MemoryAllocator::mem_alloc(size_t size)
             break;
     }
 
-    if (blk == nullptr)
+    if (blk == nullptr || blk->size < allocSize)
         return nullptr;
 
     const size_t remainingSize =
@@ -119,6 +119,7 @@ int MemoryAllocator::mem_free(void *ptr)
         return -1;
     }
 
+
     BlockHeader *blk = (BlockHeader *) ((char *) ptr - sizeof(BlockHeader));
 
     if (blk->size <= 0)
@@ -126,12 +127,26 @@ int MemoryAllocator::mem_free(void *ptr)
         //printString("ERR blk\n");
         return -2;
     }
+    size_t offset = (char *) blk - (char *) HEAP_START_ADDR;
+    if (offset % MEM_BLOCK_SIZE != 0)
+        return -2; // nije poravnat na granicu bloka
+
+    BlockHeader *current = freeMemHead;
+    while (current)
+    {
+        if (current == blk || ((char *) blk > (char *) current && (char *) blk < (char *) current + current->size))
+        {
+            //printString("ERR double free\n");
+            return -3;
+        }
+        current = current->next;
+    }
 
     /*printString("BLK\n");
     printInteger((uint64) blk);
     printString("\nBLK\n");*/
 
-    BlockHeader *current = nullptr;
+    current = nullptr;
 
     if (!freeMemHead || (char *) blk < (char *) freeMemHead)
     {
@@ -151,4 +166,3 @@ int MemoryAllocator::mem_free(void *ptr)
 
     return 0;
 }
-
