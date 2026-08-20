@@ -46,9 +46,9 @@ public:
 
     enum BitMaskSip
     {
-        SIP_SSIE = (1 << 1),
-        SIP_STIE = (1 << 5),
-        SIP_SEIE = (1 << 9),
+        SIP_SSIP = (1 << 1),
+        SIP_STIP = (1 << 5),
+        SIP_SEIP = (1 << 9),
     };
 
     // mask set register sip
@@ -82,7 +82,13 @@ public:
     // write register sstatus
     static void w_sstatus(uint64 sstatus);
 
+    // supervisor trap
+    static void supervisorTrap();
+
 private:
+
+    // handle supervisor trap
+    static void handleSupervisorTrap();
 
 };
 

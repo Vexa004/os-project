@@ -2,10 +2,11 @@
 // Created by marko on 20.4.22..
 //
 
-#include "../h/ccb.hpp"
+#include "../h/tcb.hpp"
 #include "../h/MemoryAllocator.hpp"
 #include "../h/workers.hpp"
 #include "../h/print.hpp"
+#include "../h/riscv.hpp"
 //#include "../h/MemoryAllocatorTests.hpp"
 
 
@@ -75,35 +76,35 @@ void testMemoryFree()
 
 void testBasicAlloc()
 {
-    MemoryAllocator& allocator = MemoryAllocator::getInstance();
+    MemoryAllocator &allocator = MemoryAllocator::getInstance();
     allocator.init();
 
-    void* p1 = allocator.mem_alloc(1);
-    void* p2 = allocator.mem_alloc(64);
-    void* p3 = allocator.mem_alloc(65);
-    void* p4 = allocator.mem_alloc(127);
-    void* p5 = allocator.mem_alloc(128);
+    void *p1 = allocator.mem_alloc(1);
+    void *p2 = allocator.mem_alloc(64);
+    void *p3 = allocator.mem_alloc(65);
+    void *p4 = allocator.mem_alloc(127);
+    void *p5 = allocator.mem_alloc(128);
 
     printString("=== BASIC ALLOC ===\n");
 
     printString("p1: ");
-    printInteger((uint64)p1);
+    printInteger((uint64) p1);
     printString("\n");
 
     printString("p2: ");
-    printInteger((uint64)p2);
+    printInteger((uint64) p2);
     printString("\n");
 
     printString("p3: ");
-    printInteger((uint64)p3);
+    printInteger((uint64) p3);
     printString("\n");
 
     printString("p4: ");
-    printInteger((uint64)p4);
+    printInteger((uint64) p4);
     printString("\n");
 
     printString("p5: ");
-    printInteger((uint64)p5);
+    printInteger((uint64) p5);
     printString("\n");
 
     printString("p1 != p2: ");
@@ -125,34 +126,34 @@ void testBasicAlloc()
 
 void testReuse()
 {
-    MemoryAllocator& allocator = MemoryAllocator::getInstance();
+    MemoryAllocator &allocator = MemoryAllocator::getInstance();
 
     printString("\n=== REUSE TEST ===\n");
 
-    void* p1 = allocator.mem_alloc(100);
-    void* p2 = allocator.mem_alloc(100);
-    void* p3 = allocator.mem_alloc(100);
+    void *p1 = allocator.mem_alloc(100);
+    void *p2 = allocator.mem_alloc(100);
+    void *p3 = allocator.mem_alloc(100);
 
     printString("p1: ");
-    printInteger((uint64)p1);
+    printInteger((uint64) p1);
     printString("\n");
 
     printString("p2: ");
-    printInteger((uint64)p2);
+    printInteger((uint64) p2);
     printString("\n");
 
     printString("p3: ");
-    printInteger((uint64)p3);
+    printInteger((uint64) p3);
     printString("\n");
 
     allocator.mem_free(p2);
 
     printString("p2 freed\n");
 
-    void* p4 = allocator.mem_alloc(50);
+    void *p4 = allocator.mem_alloc(50);
 
     printString("p4: ");
-    printInteger((uint64)p4);
+    printInteger((uint64) p4);
     printString("\n");
 
     printString("p4 == p2: ");
@@ -162,24 +163,24 @@ void testReuse()
 
 void testJoin()
 {
-    MemoryAllocator& allocator = MemoryAllocator::getInstance();
+    MemoryAllocator &allocator = MemoryAllocator::getInstance();
 
     printString("\n=== JOIN TEST ===\n");
 
-    void* p1 = allocator.mem_alloc(100);
-    void* p2 = allocator.mem_alloc(100);
-    void* p3 = allocator.mem_alloc(100);
+    void *p1 = allocator.mem_alloc(100);
+    void *p2 = allocator.mem_alloc(100);
+    void *p3 = allocator.mem_alloc(100);
 
     printString("p1: ");
-    printInteger((uint64)p1);
+    printInteger((uint64) p1);
     printString("\n");
 
     printString("p2: ");
-    printInteger((uint64)p2);
+    printInteger((uint64) p2);
     printString("\n");
 
     printString("p3: ");
-    printInteger((uint64)p3);
+    printInteger((uint64) p3);
     printString("\n");
 
     allocator.mem_free(p2);
@@ -187,10 +188,10 @@ void testJoin()
 
     printString("p1 and p2 freed\n");
 
-    void* p4 = allocator.mem_alloc(200);
+    void *p4 = allocator.mem_alloc(200);
 
     printString("p4: ");
-    printInteger((uint64)p4);
+    printInteger((uint64) p4);
     printString("\n");
 
     printString("p4 == p1: ");
@@ -200,13 +201,13 @@ void testJoin()
 
 void testJoinBothSides()
 {
-    MemoryAllocator& allocator = MemoryAllocator::getInstance();
+    MemoryAllocator &allocator = MemoryAllocator::getInstance();
 
     printString("\n=== JOIN BOTH SIDES ===\n");
 
-    void* p1 = allocator.mem_alloc(100);
-    void* p2 = allocator.mem_alloc(100);
-    void* p3 = allocator.mem_alloc(100);
+    void *p1 = allocator.mem_alloc(100);
+    void *p2 = allocator.mem_alloc(100);
+    void *p3 = allocator.mem_alloc(100);
 
     allocator.mem_free(p1);
     allocator.mem_free(p3);
@@ -217,10 +218,10 @@ void testJoinBothSides()
 
     printString("p2 freed\n");
 
-    void* p4 = allocator.mem_alloc(250);
+    void *p4 = allocator.mem_alloc(250);
 
     printString("p4: ");
-    printInteger((uint64)p4);
+    printInteger((uint64) p4);
     printString("\n");
 
     printString("p4 == p1: ");
@@ -230,12 +231,12 @@ void testJoinBothSides()
 
 void testMemoryWrite()
 {
-    MemoryAllocator& allocator = MemoryAllocator::getInstance();
+    MemoryAllocator &allocator = MemoryAllocator::getInstance();
     allocator.init();
 
     printString("\n=== MEMORY WRITE ===\n");
 
-    char* p = (char*)allocator.mem_alloc(100);
+    char *p = (char *) allocator.mem_alloc(100);
 
     if (p == nullptr)
     {
@@ -244,13 +245,13 @@ void testMemoryWrite()
     }
 
     for (int i = 0; i < 100; i++)
-        p[i] = (char)i;
+        p[i] = (char) i;
 
     bool correct = true;
 
     for (int i = 0; i < 100; i++)
     {
-        if (p[i] != (char)i)
+        if (p[i] != (char) i)
         {
             correct = false;
             break;
@@ -266,13 +267,13 @@ void testMemoryWrite()
 
 void testAllocatorExtensive()
 {
-    MemoryAllocator& allocator = MemoryAllocator::getInstance();
+    MemoryAllocator &allocator = MemoryAllocator::getInstance();
 
     printString("\n=== EXTENSIVE ALLOC/FREE TEST ===\n");
 
     const int SLOTS = 100;
 
-    void* ptrs[SLOTS];
+    void *ptrs[SLOTS];
 
     for (int i = 0; i < SLOTS; i++)
         ptrs[i] = nullptr;
@@ -304,17 +305,25 @@ void testAllocatorExtensive()
 
         switch (iteration % 8)
         {
-            case 0: size = 1;   break;
-            case 1: size = 16;  break;
-            case 2: size = 32;  break;
-            case 3: size = 63;  break;
-            case 4: size = 64;  break;
-            case 5: size = 65;  break;
-            case 6: size = 100; break;
-            default: size = 200; break;
+            case 0: size = 1;
+                break;
+            case 1: size = 16;
+                break;
+            case 2: size = 32;
+                break;
+            case 3: size = 63;
+                break;
+            case 4: size = 64;
+                break;
+            case 5: size = 65;
+                break;
+            case 6: size = 100;
+                break;
+            default: size = 200;
+                break;
         }
 
-        void* ptr = allocator.mem_alloc(size);
+        void *ptr = allocator.mem_alloc(size);
 
         if (ptr == nullptr)
         {
@@ -339,15 +348,15 @@ void testAllocatorExtensive()
         allocations++;
 
         // Upis u alociranu memoriju
-        unsigned char* data = (unsigned char*)ptr;
+        unsigned char *data = (unsigned char *) ptr;
 
         for (size_t i = 0; i < size; i++)
-            data[i] = (unsigned char)(iteration & 0xFF);
+            data[i] = (unsigned char) (iteration & 0xFF);
 
         // Provera
         for (size_t i = 0; i < size; i++)
         {
-            if (data[i] != (unsigned char)(iteration & 0xFF))
+            if (data[i] != (unsigned char) (iteration & 0xFF))
             {
                 printString("MEMORY CORRUPTION at iteration ");
                 printInteger(iteration);
@@ -401,22 +410,22 @@ void testAllocatorExtensive()
 
 void testFreeAndReuse()
 {
-    MemoryAllocator& allocator = MemoryAllocator::getInstance();
+    MemoryAllocator &allocator = MemoryAllocator::getInstance();
 
-    void* p1 = allocator.mem_alloc(100);
-    void* p2 = allocator.mem_alloc(100);
-    void* p3 = allocator.mem_alloc(100);
+    void *p1 = allocator.mem_alloc(100);
+    void *p2 = allocator.mem_alloc(100);
+    void *p3 = allocator.mem_alloc(100);
 
     printString("p1: ");
-    printInteger((uint64)p1);
+    printInteger((uint64) p1);
     printString("\n");
 
     printString("p2: ");
-    printInteger((uint64)p2);
+    printInteger((uint64) p2);
     printString("\n");
 
     printString("p3: ");
-    printInteger((uint64)p3);
+    printInteger((uint64) p3);
     printString("\n");
 
     allocator.mem_free(p1);
@@ -425,10 +434,10 @@ void testFreeAndReuse()
 
     printString("All freed\n");
 
-    void* big = allocator.mem_alloc(300);
+    void *big = allocator.mem_alloc(300);
 
     printString("big: ");
-    printInteger((uint64)big);
+    printInteger((uint64) big);
     printString("\n");
 
     if (big != nullptr)
@@ -441,13 +450,13 @@ void testFreeAndReuse()
 
 void testAllocatorFragmentation()
 {
-    MemoryAllocator& allocator = MemoryAllocator::getInstance();
+    MemoryAllocator &allocator = MemoryAllocator::getInstance();
 
     printString("\n=== FRAGMENTATION TEST ===\n");
 
     const int SLOTS = 200;
 
-    static void* ptrs[SLOTS];
+    static void *ptrs[SLOTS];
     static unsigned char patterns[SLOTS];
 
     for (int i = 0; i < SLOTS; i++)
@@ -472,19 +481,19 @@ void testAllocatorFragmentation()
                 continue;
 
             size_t size =
-                128 + ((i * 137 + cycle * 251) % 3900);
+                    128 + ((i * 137 + cycle * 251) % 3900);
 
-            void* ptr = allocator.mem_alloc(size);
+            void *ptr = allocator.mem_alloc(size);
 
             if (ptr != nullptr)
             {
                 ptrs[i] = ptr;
-                patterns[i] = (unsigned char)((i + cycle) & 0xFF);
+                patterns[i] = (unsigned char) ((i + cycle) & 0xFF);
 
                 totalAlloc++;
 
-                unsigned char* data =
-                    (unsigned char*)ptr;
+                unsigned char *data =
+                        (unsigned char *) ptr;
 
                 for (size_t j = 0; j < size; j++)
                     data[j] = patterns[i];
@@ -501,8 +510,8 @@ void testAllocatorFragmentation()
             if (ptrs[i] == nullptr)
                 continue;
 
-            unsigned char* data =
-                (unsigned char*)ptrs[i];
+            unsigned char *data =
+                    (unsigned char *) ptrs[i];
 
             for (int j = 0; j < 16; j++)
             {
@@ -555,20 +564,20 @@ void testAllocatorFragmentation()
                 continue;
 
             size_t size =
-                64 + ((i * 211 + cycle * 97) % 2500);
+                    64 + ((i * 211 + cycle * 97) % 2500);
 
-            void* ptr =
-                allocator.mem_alloc(size);
+            void *ptr =
+                    allocator.mem_alloc(size);
 
             if (ptr != nullptr)
             {
                 ptrs[i] = ptr;
-                patterns[i] = (unsigned char)(0xA0 + cycle);
+                patterns[i] = (unsigned char) (0xA0 + cycle);
 
                 totalAlloc++;
 
-                unsigned char* data =
-                    (unsigned char*)ptr;
+                unsigned char *data =
+                        (unsigned char *) ptr;
 
                 for (size_t j = 0; j < size; j++)
                     data[j] = patterns[i];
@@ -627,15 +636,16 @@ void testAllocatorFragmentation()
 
     printString("\nFRAGMENTATION TEST PASSED\n");
 }
+
 void testFullHeapAndJoin()
 {
-    MemoryAllocator& allocator = MemoryAllocator::getInstance();
+    MemoryAllocator &allocator = MemoryAllocator::getInstance();
 
     printString("\n=== FULL HEAP / JOIN TEST ===\n");
 
     const int MAX_BLOCKS = 500;
 
-    static void* ptrs[MAX_BLOCKS];
+    static void *ptrs[MAX_BLOCKS];
 
     for (int i = 0; i < MAX_BLOCKS; i++)
         ptrs[i] = nullptr;
@@ -651,14 +661,19 @@ void testFullHeapAndJoin()
 
         switch (count % 5)
         {
-            case 0:  size = 256; break;
-            case 1:  size = 512; break;
-            case 2:  size = 1024; break;
-            case 3:  size = 1536; break;
-            default: size = 2048; break;
+            case 0: size = 256;
+                break;
+            case 1: size = 512;
+                break;
+            case 2: size = 1024;
+                break;
+            case 3: size = 1536;
+                break;
+            default: size = 2048;
+                break;
         }
 
-        void* ptr = allocator.mem_alloc(size);
+        void *ptr = allocator.mem_alloc(size);
 
         if (ptr == nullptr)
             break;
@@ -666,10 +681,10 @@ void testFullHeapAndJoin()
         ptrs[count] = ptr;
 
         // Upis da proverimo da je memorija validna
-        unsigned char* data = (unsigned char*)ptr;
+        unsigned char *data = (unsigned char *) ptr;
 
         for (size_t i = 0; i < size; i++)
-            data[i] = (unsigned char)(count & 0xFF);
+            data[i] = (unsigned char) (count & 0xFF);
 
         count++;
     }
@@ -703,18 +718,18 @@ void testFullHeapAndJoin()
     //
     // Tražimo skoro ceo heap.
     size_t heapSize =
-        (size_t)((char*)HEAP_END_ADDR -
-                 (char*)HEAP_START_ADDR);
+            (size_t) ((char *) HEAP_END_ADDR -
+                      (char *) HEAP_START_ADDR);
 
     // Ostavljamo malo prostora da header + poravnanje mogu da stanu.
     size_t requestSize =
-        heapSize - 2 * MEM_BLOCK_SIZE;
+            heapSize - 2 * MEM_BLOCK_SIZE;
 
     printString("Requesting large block: ");
     printInteger(requestSize);
     printString(" bytes\n");
 
-    void* big = allocator.mem_alloc(requestSize);
+    void *big = allocator.mem_alloc(requestSize);
 
     if (big == nullptr)
     {
@@ -725,7 +740,7 @@ void testFullHeapAndJoin()
     printString("BIG ALLOCATION SUCCESS\n");
 
     // 4. Provera da veliki blok stvarno može da se koristi
-    unsigned char* data = (unsigned char*)big;
+    unsigned char *data = (unsigned char *) big;
 
     data[0] = 0x11;
 
@@ -759,8 +774,6 @@ void testFullHeapAndJoin()
     printString("LARGE BLOCK FREED\n");
 
     printString("=== FULL HEAP / JOIN TEST PASSED ===\n");
-
-
 }
 
 // endregion
@@ -789,24 +802,46 @@ int main()
 
 // Ako su testovi u MemoryAllocatorTests.cpp
 
+struct Test
+{
+    const char *tekst;
+    const char *name;
+};
+
 int main()
 {
     MemoryAllocator::getInstance().init();
+    TCB *threads[5];
 
+    threads[0] = TCB::createThread(nullptr);
+    TCB::running = threads[0];
 
-    // runMemoryAllocatorTests();
-    // runDoubleFreeDangerTest();
-    // runInvalidPointerDangerTest();
-    //runDoubleFreeCoalesceBypassDangerTest();
+    threads[1] = TCB::createThread(workerBodyA);
+    printString("ThreadA created\n");
+    threads[2] = TCB::createThread(workerBodyB);
+    printString("ThreadB created\n");
+    threads[3] = TCB::createThread(workerBodyC);
+    printString("ThreadC created\n");
+    threads[4] = TCB::createThread(workerBodyD);
+    printString("ThreadD created\n");
 
-    // ostatak inicijalizacije kernela...
-    // Scheduler::...
-    // Riscv::...
-    // itd.
+    Riscv::w_stvec((uint64) &Riscv::supervisorTrap);
+    Riscv::ms_sstatus(Riscv::SSTATUS_SIE);
 
-    while (1)
+    while (!(threads[1]->isFinished() &&
+             threads[2]->isFinished() &&
+             threads[3]->isFinished() &&
+             threads[4]->isFinished()))
     {
+        TCB::yield();
     }
+
+    for (auto &thread: threads)
+    {
+        delete thread;
+    }
+    printString("Finished\n");
 
     return 0;
 }
+
