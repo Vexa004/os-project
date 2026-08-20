@@ -4,6 +4,8 @@
 
 #include "../h/scheduler.hpp"
 
+#include "../h/print.hpp"
+
 List<TCB> Scheduler::readyCoroutineQueue;
 
 TCB *Scheduler::get()
@@ -13,5 +15,6 @@ TCB *Scheduler::get()
 
 void Scheduler::put(TCB *ccb)
 {
+
     readyCoroutineQueue.addLast(ccb);
 }

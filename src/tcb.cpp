@@ -10,15 +10,16 @@ TCB *TCB::running = nullptr;
 uint64 TCB::timeSliceCounter = 0;
 
 
-
 TCB *TCB::createThread(Body start_routine, void *arg, void *stack)
 {
-    return new TCB(start_routine,arg,stack);
+    return new TCB(start_routine, arg, stack);
 }
 
 void TCB::yield()
 {
+    __asm__ __volatile__("li a0, 0x13");
     __asm__ volatile("ecall");
+    // dispatch();
 }
 
 int TCB::threadExit()
@@ -48,5 +49,6 @@ void TCB::threadWrapper()
     Riscv::popSppSpie();
     running->body(running->arg);
     running->setFinished(true);
+
     TCB::yield();
 }

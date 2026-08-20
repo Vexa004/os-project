@@ -812,17 +812,20 @@ int main()
 {
     MemoryAllocator::getInstance().init();
     Riscv::w_stvec((uint64) &Riscv::supervisorTrap);
+
     //TCB *threads[5];
 
-    printIntegerMoj((uint64)HEAP_START_ADDR);
-    printStringMoj("\n");
-    void *stack = mem_alloc(DEFAULT_STACK_SIZE);
-    void *stack2 = mem_alloc(DEFAULT_STACK_SIZE);
-    printIntegerMoj((uint64)stack);
-    printStringMoj("\n");
-    printIntegerMoj((uint64)stack2);
-    printStringMoj("\n");
-    stack = 0;
+    thread_t thread1=nullptr;
+    thread_t thread2=nullptr;
+    thread_create(&thread1,nullptr,nullptr);
+    TCB::running = thread1;
+    thread_create(&thread2,workerBodyB,nullptr);
+
+    while (!thread2->isFinished())
+    {
+        TCB::dispatch();
+    }
+
 
     return 0;
 }

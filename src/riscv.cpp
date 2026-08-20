@@ -65,6 +65,7 @@ void Riscv::handleSupervisorTrap(uint64 *regs)
         printIntegerMoj(sepc);
         printStringMoj(", stval: ");
         printIntegerMoj(stval);
+        while (1);
     }
 }
 
@@ -87,6 +88,32 @@ uint64 Riscv::handleEnvironmentCall(uint64 code, uint64 a1, uint64 a2, uint64 a3
             {
                 int ret = MemoryAllocator::getInstance().mem_free((void *) a1);
                 return ret;
+                break;
+            }
+        case 0x11:
+            {
+                thread_t *thr = (thread_t *) a1;
+                TCB::Body body = (TCB::Body) a2;
+                TCB *thread = TCB::createThread(body, (void *) a3, (void *) a4);
+
+                if (thread == nullptr)
+                {
+                    return -1;
+                }else
+                {
+                    *thr = thread;
+                    return 0;
+                }
+                break;
+            }
+        case 0x12:
+            {
+                TCB::threadExit();
+                break;
+            }
+        case 0x13:
+            {
+                TCB::dispatch();
                 break;
             }
         default:

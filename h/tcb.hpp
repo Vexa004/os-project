@@ -5,6 +5,7 @@
 #ifndef OS1_VEZBE07_RISCV_CONTEXT_SWITCH_1_SYNCHRONOUS_CCB_HPP
 #define OS1_VEZBE07_RISCV_CONTEXT_SWITCH_1_SYNCHRONOUS_CCB_HPP
 
+#include "print.hpp"
 #include "../lib/hw.h"
 #include "scheduler.hpp"
 #include "syscall_c.h"
@@ -24,7 +25,7 @@ public:
         return timeSlice;
     }
 
-    using Body = void (*)(void*);
+    using Body = void (*)(void *);
 
     static TCB *createThread(Body start_routine, void *arg, void *stack);
 
@@ -36,23 +37,29 @@ public:
 
     static void dispatch();
 
-    void * arg1() const
+    void *arg1() const
     {
         return arg;
     }
 
-    int threadExit();
+    static int threadExit();
 
 private:
     explicit TCB(Body body, void *arg, void *stack) : body(body),
                                                       stack((uint64 *) stack),
                                                       context({
                                                           (uint64) &threadWrapper,
-                                                          this->stack != nullptr ? (uint64) &this->stack[STACK_SIZE - 1] : 0
+                                                          this->stack != nullptr
+                                                              ? (uint64) &this->stack[STACK_SIZE - 1]
+                                                              : 0
                                                       }),
-                                                      finished(false),  arg(arg)
+                                                      finished(false), arg(arg)
     {
-        if (body != nullptr) { Scheduler::put(this); }
+        if (body != nullptr)
+        {
+            printStringMoj("USAO");
+            Scheduler::put(this);
+        }
     }
 
     struct Context

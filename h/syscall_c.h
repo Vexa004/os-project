@@ -8,19 +8,18 @@
 #include "../lib/hw.h"
 
 
+void *mem_alloc(size_t size);
+
+int mem_free(void *);
+
 class TCB;
+typedef TCB *thread_t;
 
-    void* mem_alloc(size_t size);
+int thread_create(thread_t *handle, void  (*start_routine)(void *), void *arg);
 
-    int mem_free(void*);
+int thread_exit();
 
-    typedef TCB* thread_t;
-
-    int thread_create(thread_t* handle, void (*start_routine)(void*), void* arg);
-
-    int thread_exit();
-
-    void thread_dispatch();
+void thread_dispatch();
 
 
 #endif //PROJECT_BASE_V1_1_SYSCALL_C_HPP
