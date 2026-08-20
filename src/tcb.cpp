@@ -13,17 +13,12 @@ uint64 TCB::timeSliceCounter = 0;
 
 TCB *TCB::createThread(Body start_routine, void *arg, void *stack)
 {
-    if ( stack == nullptr)
-    {
-        return nullptr;
-    }
     return new TCB(start_routine,arg,stack);
 }
 
 void TCB::yield()
 {
     __asm__ volatile("ecall");
-
 }
 
 int TCB::threadExit()

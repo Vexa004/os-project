@@ -19,7 +19,7 @@
 #include "../h/MemoryAllocator.hpp"
 #include "../h/print.hpp"
 #include "../lib/hw.h"
-
+/*
 namespace
 {
     int g_testsRun = 0;
@@ -999,3 +999,4 @@ void runDoubleFreeCoalesceBypassDangerTest()
 
     printString("===== DANGER TEST 3: double-free nad vec-spojenim blokom - kraj. STOP. =====\n\n");
 }
+*/

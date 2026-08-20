@@ -86,9 +86,10 @@ public:
     static void supervisorTrap();
 
 private:
+    static uint64 handleEnvironmentCall(uint64 broj, uint64 a1, uint64 a2, uint64 a3, uint64 a4);
 
     // handle supervisor trap
-    static void handleSupervisorTrap();
+    static void handleSupervisorTrap(uint64*);
 
 };
 

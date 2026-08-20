@@ -15,23 +15,27 @@ void Riscv::popSppSpie()
     __asm__ volatile ("sret");
 }
 
-void Riscv::handleSupervisorTrap()
+void Riscv::handleSupervisorTrap(uint64 *regs)
 {
+    uint64 broj, ar1, ar2, ar3, ar4;
+
+    broj = regs[10];
+    ar1 = regs[11];
+    ar2 = regs[12];
+    ar3 = regs[13];
+    ar4 = regs[14];
+
     uint64 cause = r_scause();
-    uint64 code, a1, a2, a3, a4;
-    __asm__ volatile ("mv %0, a0" : "=r"(code));
-    __asm__ volatile ("mv %0, a1" : "=r"(a1));
-    __asm__ volatile ("mv %0, a2" : "=r"(a2));
-    __asm__ volatile ("mv %0, a3" : "=r"(a3));
-    __asm__ volatile ("mv %0, a4" : "=r"(a4));
+
     if (cause == 0x0000000000000009UL || cause == 0x0000000000000008UL)
     {
         // interrupt: no, cause code: supervisor environment call from U-mode or S-mode
-        printString("1ECALL! code: \n");
-        printInteger(code);
-        printString("\n2ECALL! code: \n");
+
         uint64 sepc = r_sepc() + 4;
         uint64 sstatus = r_sstatus();
+
+
+        regs[10] = handleEnvironmentCall(broj, ar1, ar2, ar3, ar4);
 
         w_sstatus(sstatus);
         w_sepc(sepc);
@@ -39,18 +43,12 @@ void Riscv::handleSupervisorTrap()
     {
         // interrupt: yes, cause code: supervisor software interrupt (timer)
 
-        TCB::timeSliceCounter++;
-
-        if (TCB::timeSliceCounter >= TCB::running->getTimeSlice())
-        {
-            //TCB::running->timeSliceCounter = 0;
-            uint64 sepc = r_sepc();
-            uint64 sstatus = r_sstatus();
-            TCB::timeSliceCounter = 0;
-            TCB::dispatch();
-            w_sstatus(sstatus);
-            w_sepc(sepc);
-        }
+        //TCB::running->timeSliceCounter = 0;
+        uint64 sepc = r_sepc();
+        uint64 sstatus = r_sstatus();
+        TCB::dispatch();
+        w_sstatus(sstatus);
+        w_sepc(sepc);
         mc_sip(SIP_SSIP);
     } else if (cause == 0x8000000000000009UL)
     {
@@ -61,34 +59,42 @@ void Riscv::handleSupervisorTrap()
         // interrupt: no, cause code: exception
         uint64 sepc = r_sepc();
         uint64 stval = r_stval();
-        printString("Exception! scause: ");
-        printInteger(cause);
-        printString(", sepc: ");
-        printInteger(sepc);
-        printString(", stval: ");
-        printInteger(stval);
+        printStringMoj("Exception! scause: ");
+        printIntegerMoj(cause);
+        printStringMoj(", sepc: ");
+        printIntegerMoj(sepc);
+        printStringMoj(", stval: ");
+        printIntegerMoj(stval);
     }
 }
 
-void callSystemCall(uint64 code, uint64 a1, uint64 a2, uint64 a3, uint64 a4)
+uint64 Riscv::handleEnvironmentCall(uint64 code, uint64 a1, uint64 a2, uint64 a3, uint64 a4)
 {
+    // uint64 retVal;
     switch (code)
     {
         case 0x01:
             {
+                /*printStringMoj("HOCU SIZE2: \n");
+                printIntegerMoj((uint64)a1);
+                printStringMoj("\n");*/
+
                 void *ptr = MemoryAllocator::getInstance().mem_alloc(a1);
+                return (uint64) ptr;
                 break;
             }
         case 0x02:
             {
                 int ret = MemoryAllocator::getInstance().mem_free((void *) a1);
+                return ret;
                 break;
             }
         default:
             {
-                printString("Unknown system call: ");
-                printInteger(code);
+                printStringMoj("Unknown system call: ");
+                printIntegerMoj(code);
                 break;
             }
     }
+    return -1;
 }

@@ -38,6 +38,8 @@ void *MemoryAllocator::mem_alloc(size_t size)
         return nullptr;
 
 
+
+
     // Ukupna veličina = header + korisnički zahtev.
     const size_t requestedSize =
             sizeof(BlockHeader) + size;

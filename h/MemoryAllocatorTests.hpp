@@ -4,6 +4,7 @@
 // bez izuzetaka, bez dinamickih kontejnera - koristi se samo javni interfejs
 // klase MemoryAllocator: init(), mem_alloc(), mem_free()).
 //
+/*
 #ifndef PROJECT_BASE_V1_1_MEMORYALLOCATORTESTS_HPP
 #define PROJECT_BASE_V1_1_MEMORYALLOCATORTESTS_HPP
 
@@ -43,3 +44,4 @@ void runInvalidPointerDangerTest();
 void runDoubleFreeCoalesceBypassDangerTest();
 
 #endif //PROJECT_BASE_V1_1_MEMORYALLOCATORTESTS_HPP
+*/

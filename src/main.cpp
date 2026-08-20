@@ -8,10 +8,10 @@
 #include "../h/print.hpp"
 #include "../h/riscv.hpp"
 //#include "../h/MemoryAllocatorTests.hpp"
-
+#include "../lib/hw.h"
 
 // region Tests
-
+/*
 void testMemoryAllocator()
 {
     MemoryAllocator &allocator = MemoryAllocator::getInstance();
@@ -776,7 +776,7 @@ void testFullHeapAndJoin()
     printString("=== FULL HEAP / JOIN TEST PASSED ===\n");
 }
 
-// endregion
+// endregion*/
 /*
 int main()
 {
@@ -811,37 +811,18 @@ struct Test
 int main()
 {
     MemoryAllocator::getInstance().init();
-    TCB *threads[5];
-
-    threads[0] = TCB::createThread(nullptr);
-    TCB::running = threads[0];
-
-    threads[1] = TCB::createThread(workerBodyA);
-    printString("ThreadA created\n");
-    threads[2] = TCB::createThread(workerBodyB);
-    printString("ThreadB created\n");
-    threads[3] = TCB::createThread(workerBodyC);
-    printString("ThreadC created\n");
-    threads[4] = TCB::createThread(workerBodyD);
-    printString("ThreadD created\n");
-
     Riscv::w_stvec((uint64) &Riscv::supervisorTrap);
-    Riscv::ms_sstatus(Riscv::SSTATUS_SIE);
+    //TCB *threads[5];
 
-    while (!(threads[1]->isFinished() &&
-             threads[2]->isFinished() &&
-             threads[3]->isFinished() &&
-             threads[4]->isFinished()))
-    {
-        TCB::yield();
-    }
-
-    for (auto &thread: threads)
-    {
-        delete thread;
-    }
-    printString("Finished\n");
+    printIntegerMoj((uint64)HEAP_START_ADDR);
+    printStringMoj("\n");
+    void *stack = mem_alloc(DEFAULT_STACK_SIZE);
+    void *stack2 = mem_alloc(DEFAULT_STACK_SIZE);
+    printIntegerMoj((uint64)stack);
+    printStringMoj("\n");
+    printIntegerMoj((uint64)stack2);
+    printStringMoj("\n");
+    stack = 0;
 
     return 0;
 }
-
