@@ -12,12 +12,10 @@ void MemoryAllocator::init()
 {
     if (freeMemHead != nullptr)
     {
-        printString("Already initialized\n");
+        printStringMoj("Already initialized\n");
         return;
-    } else
-    {
-        printString("Initializing memory allocator\n");
     }
+    printStringMoj("Initializing memory allocator\n");
 
     freeMemHead = (BlockHeader *) HEAP_START_ADDR;
     freeMemHead->next = nullptr;
@@ -38,6 +36,7 @@ void *MemoryAllocator::mem_alloc(size_t size)
 {
     if (size == 0 || size > (size_t) ((char *) HEAP_END_ADDR - (char *) HEAP_START_ADDR))
         return nullptr;
+
 
     // Ukupna veličina = header + korisnički zahtev.
     const size_t requestedSize =
@@ -94,6 +93,7 @@ void *MemoryAllocator::mem_alloc(size_t size)
     }
 
     // Preskačemo header i vraćamo korisniku njegov deo.
+
     return (char *) blk + sizeof(BlockHeader);
 }
 

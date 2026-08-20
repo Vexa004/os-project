@@ -6,7 +6,7 @@
 #include "../h/riscv.hpp"
 #include "../lib/console.h"
 
-void printString(char const *string)
+void printStringMoj(char const *string)
 {
     uint64 sstatus = Riscv::r_sstatus();
     Riscv::mc_sstatus(Riscv::SSTATUS_SIE);
@@ -18,7 +18,7 @@ void printString(char const *string)
     Riscv::ms_sstatus(sstatus & Riscv::SSTATUS_SIE ? Riscv::SSTATUS_SIE : 0);
 }
 
-void printInteger(uint64 integer)
+void printIntegerMoj(uint64 integer)
 {
     uint64 sstatus = Riscv::r_sstatus();
     Riscv::mc_sstatus(Riscv::SSTATUS_SIE);

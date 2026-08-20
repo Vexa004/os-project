@@ -9,15 +9,34 @@ TCB *TCB::running = nullptr;
 
 uint64 TCB::timeSliceCounter = 0;
 
-TCB *TCB::createThread(Body body)
+
+
+TCB *TCB::createThread(Body start_routine, void *arg, void *stack)
 {
-    return new TCB(body, TIME_SLICE);
+    if ( stack == nullptr)
+    {
+        return nullptr;
+    }
+    return new TCB(start_routine,arg,stack);
 }
 
 void TCB::yield()
 {
     __asm__ volatile("ecall");
 
+}
+
+int TCB::threadExit()
+{
+    TCB *current = running;
+
+    if (current == nullptr)
+    {
+        return -1;
+    }
+    current->setFinished(true);
+    TCB::yield();
+    return 0;
 }
 
 void TCB::dispatch()
@@ -32,7 +51,7 @@ void TCB::dispatch()
 void TCB::threadWrapper()
 {
     Riscv::popSppSpie();
-    running->body();
+    running->body(running->arg);
     running->setFinished(true);
     TCB::yield();
 }

@@ -7,6 +7,7 @@
 
 #include "../lib/hw.h"
 #include "scheduler.hpp"
+#include "syscall_c.h"
 
 // Coroutine Control Block
 class TCB
@@ -23,9 +24,11 @@ public:
         return timeSlice;
     }
 
-    using Body = void (*)();
+    using Body = void (*)(void*);
 
-    static TCB *createThread(Body body);
+    static TCB *createThread(Body start_routine, void *arg, void *stack);
+
+    //static TCB *createThread(Body body);
 
     static void yield();
 
@@ -33,14 +36,21 @@ public:
 
     static void dispatch();
 
+    void * arg1() const
+    {
+        return arg;
+    }
+
+    int threadExit();
+
 private:
-    explicit TCB(Body body, uint64 timeSlice) : body(body),
-                                                stack(body != nullptr ? new uint64[STACK_SIZE] : nullptr),
-                                                context({
-                                                    (uint64) &threadWrapper,
-                                                    stack != nullptr ? (uint64) &stack[STACK_SIZE] : 0
-                                                }),
-                                                finished(false), timeSlice(timeSlice)
+    explicit TCB(Body body, void *arg, void *stack) : body(body),
+                                                      stack((uint64 *) stack),
+                                                      context({
+                                                          (uint64) &threadWrapper,
+                                                          this->stack != nullptr ? (uint64) &this->stack[STACK_SIZE - 1] : 0
+                                                      }),
+                                                      finished(false),  arg(arg)
     {
         if (body != nullptr) { Scheduler::put(this); }
     }
@@ -55,6 +65,7 @@ private:
     uint64 *stack;
     Context context;
     bool finished;
+    void *arg;
 
     static void contextSwitch(Context *oldContext, Context *runningContext);
 
