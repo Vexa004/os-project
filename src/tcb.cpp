@@ -19,7 +19,7 @@ void TCB::yield()
 {
     __asm__ __volatile__("li a0, 0x13");
     __asm__ volatile("ecall");
-    // dispatch();
+     // dispatch();
 }
 
 int TCB::threadExit()
@@ -46,7 +46,12 @@ void TCB::dispatch()
 
 void TCB::threadWrapper()
 {
+
     Riscv::popSppSpie();
+    if (running ->body == nullptr)
+    {
+        Riscv::ms_sstatus(Riscv::SSTATUS_SPP);
+    }
     running->body(running->arg);
     running->setFinished(true);
 

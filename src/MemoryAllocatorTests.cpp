@@ -14,7 +14,8 @@
 // Test "test_heap_returns_to_pristine_state" na kraju svake test grupe
 // sluzi kao "kanarinac" koji proverava da je spajanje (coalescing)
 // zaista vratilo ceo heap u jedan slobodan blok.
-//
+//}
+
 #include "../h/MemoryAllocatorTests.hpp"
 #include "../h/MemoryAllocator.hpp"
 #include "../h/print.hpp"

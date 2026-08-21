@@ -5,6 +5,7 @@
 #include "../lib/hw.h"
 #include "../h/tcb.hpp"
 #include "../h/print.hpp"
+#include "../test/printing.hpp"
 
 void workerBodyA(void* arg)
 {
@@ -28,9 +29,9 @@ void workerBodyB(void * arg)
 {
     for (uint64 i = 0; i < 16; i++)
     {
-        printStringMoj("B: i=");
-        printIntegerMoj(i);
-        printStringMoj("\n");
+        printString("B: i=");
+        printInt(i);
+        printString("\n");
         for (uint64 j = 0; j < 10000; j++)
         {
             for (uint64 k = 0; k < 30000; k++)

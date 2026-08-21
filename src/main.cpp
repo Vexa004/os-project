@@ -823,7 +823,7 @@ int main()
 
     while (!thread2->isFinished())
     {
-        TCB::dispatch();
+        thread_dispatch();
     }
 
 

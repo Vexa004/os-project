@@ -11,6 +11,7 @@
 
 void Riscv::popSppSpie()
 {
+    Riscv::mc_sstatus(Riscv::SSTATUS_SPP);
     __asm__ volatile ("csrw sepc, ra");
     __asm__ volatile ("sret");
 }
@@ -44,12 +45,13 @@ void Riscv::handleSupervisorTrap(uint64 *regs)
         // interrupt: yes, cause code: supervisor software interrupt (timer)
 
         //TCB::running->timeSliceCounter = 0;
+        mc_sip(SIP_SSIP);
         uint64 sepc = r_sepc();
         uint64 sstatus = r_sstatus();
         TCB::dispatch();
         w_sstatus(sstatus);
         w_sepc(sepc);
-        mc_sip(SIP_SSIP);
+
     } else if (cause == 0x8000000000000009UL)
     {
         // interrupt: yes, cause code: external interrupt (console)
