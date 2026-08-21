@@ -11,7 +11,7 @@
 
 void Riscv::popSppSpie()
 {
-     // Riscv::mc_sstatus(Riscv::SSTATUS_SPP);
+    // Riscv::mc_sstatus(Riscv::SSTATUS_SPP);
     __asm__ volatile ("csrw sepc, ra");
     __asm__ volatile ("sret");
 }
@@ -51,7 +51,6 @@ void Riscv::handleSupervisorTrap(uint64 *regs)
         TCB::dispatch();
         w_sstatus(sstatus);
         w_sepc(sepc);
-
     } else if (cause == 0x8000000000000009UL)
     {
         // interrupt: yes, cause code: external interrupt (console)
@@ -101,7 +100,7 @@ uint64 Riscv::handleEnvironmentCall(uint64 code, uint64 a1, uint64 a2, uint64 a3
                 if (thread == nullptr)
                 {
                     return -1;
-                }else
+                } else
                 {
                     *thr = thread;
                     return 0;
@@ -112,10 +111,23 @@ uint64 Riscv::handleEnvironmentCall(uint64 code, uint64 a1, uint64 a2, uint64 a3
             {
                 TCB::threadExit();
                 break;
+                return 0;
             }
         case 0x13:
             {
                 TCB::dispatch();
+                break;
+                return 0;
+            }
+        case 0x41:
+            {
+                return __getc();
+                break;
+            }
+        case 0x42:
+            {
+                __putc(a1);
+                return 0;
                 break;
             }
         default:

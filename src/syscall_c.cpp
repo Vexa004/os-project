@@ -3,9 +3,10 @@
 //
 
 #include "../h/syscall_c.h"
-
 #include "../h/print.hpp"
+#include "../lib/console.h"
 
+//region Memory
 
 void *mem_alloc(size_t size)
 {
@@ -34,6 +35,9 @@ int mem_free(void *ptr)
     return (int) a0;
 }
 
+//endregion
+
+//region Thread
 
 int thread_create(thread_t *handle, void (*start_routine)(void *), void *arg)
 {
@@ -53,7 +57,7 @@ int thread_create(thread_t *handle, void (*start_routine)(void *), void *arg)
         : "r"(a1), "r"(a2), "r"(a3),"r"(a4)
         : "memory");
 
-    return (int)a0;
+    return (int) a0;
 }
 
 void thread_dispatch()
@@ -74,5 +78,76 @@ int thread_exit()
         : "+r"(a0)
         :
         : "memory");
-    return (int)a0;
+    return (int) a0;
 }
+
+//endregion
+
+//region Semaphore
+
+int sem_open(sem_t *handle, unsigned init)
+{
+    return 0;
+}
+
+int sem_close(sem_t handle)
+{
+    return 0;
+}
+
+int sem_wait(sem_t id)
+{
+    return 0;
+}
+
+int sem_signal(sem_t id)
+{
+    return 0;
+}
+
+int sem_wait_n(sem_t id, unsigned n)
+{
+    return 0;
+}
+
+int sem_signal_n(sem_t id, unsigned n)
+{
+    return 0;
+}
+
+//endregion
+
+//region Time
+
+int time_sleep(time_t)
+{
+    return 0;
+}
+
+//endregion
+
+//region Console
+
+char getc()
+{
+    uint64 broj = 0x41;
+    register uint64 a0 asm("a0") = broj;
+    __asm__ volatile("ecall"
+        : "+r"(a0)
+        :
+        : "memory");
+    return (char)a0;
+}
+
+void putc(char c)
+{
+    uint64 broj = 0x42;
+    register uint64 a0 asm("a0") = broj;
+    register uint64 a1 asm("a1") = c;
+    __asm__ volatile("ecall"
+        : "+r"(a0)
+        : "r"(a1)
+        : "memory");
+}
+
+//endregion

@@ -8,7 +8,7 @@
 
 #include "syscall_c.h"
 #include "../lib/hw.h"
-/*
+
 
 class Thread
 {
@@ -32,6 +32,7 @@ protected:
 
 private:
 
+    static void threadWrapper(void *arg);
 
     thread_t myHandle;
 
@@ -39,7 +40,7 @@ private:
 
     void *arg;
 };
-
+/*
 class Semaphore
 {
 public:

@@ -800,6 +800,7 @@ int main()
 
 #include "../h/MemoryAllocator.hpp"
 
+
 // Ako su testovi u MemoryAllocatorTests.cpp
 
 struct Test
@@ -807,6 +808,12 @@ struct Test
     const char *tekst;
     const char *name;
 };
+extern void userMain();
+
+void userMainWrapper(void*) {
+    userMain();
+}
+
 
 int main()
 {
@@ -816,22 +823,24 @@ int main()
 
     thread_t thread1=nullptr;
     thread_t thread2=nullptr;
-    thread_t thread3=nullptr;
-    thread_t thread4=nullptr;
+    /*thread_t thread3=nullptr;
+    thread_t thread4=nullptr;*/
     thread_create(&thread1,nullptr,nullptr);
     TCB::running = thread1;
 
-    thread_create(&thread2,workerBodyB,nullptr);
-    thread_create(&thread3,workerBodyA,nullptr);
+    thread_create(&thread2,userMainWrapper,nullptr);
+    /*thread_create(&thread3,workerBodyA,nullptr);
     thread_create(&thread4,workerBodyC,nullptr);
 
     while (!(thread2->isFinished() && thread3->isFinished() && thread4->isFinished()))
     {
         thread_dispatch();
+    }*/
+
+    while (!thread2->isFinished())
+    {
+        TCB::dispatch();
     }
-
-
-
 
     return 0;
 }

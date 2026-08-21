@@ -44,7 +44,7 @@ void *MemoryAllocator::mem_alloc(size_t size)
     const size_t requestedSize =
             sizeof(BlockHeader) + size;
 
-    // Zaokruživanje CELOG regiona na MEM_BLOCK_SIZE.
+    // Zaokruživanje allocSize na MEM_BLOCK_SIZE.
     const size_t allocSize =
             ((requestedSize + MEM_BLOCK_SIZE - 1) / MEM_BLOCK_SIZE)
             * MEM_BLOCK_SIZE;
@@ -62,11 +62,12 @@ void *MemoryAllocator::mem_alloc(size_t size)
     if (blk == nullptr || blk->size < allocSize)
         return nullptr;
 
+
+
     const size_t remainingSize =
             blk->size - allocSize;
 
-    // Ako ostaje bar jedan ceo blok,
-    // možemo napraviti novi slobodan blok.
+    // Ako ostaje bar jedan ceo blok pravi se novi header
     if (remainingSize >= MEM_BLOCK_SIZE)
     {
         BlockHeader *newBlk =
@@ -85,7 +86,7 @@ void *MemoryAllocator::mem_alloc(size_t size)
         blk->next = nullptr;
     } else
     {
-        // Uzimamo ceo slobodan blok.
+        // ceo slobodan blok.
         if (prev)
             prev->next = blk->next;
         else
@@ -94,7 +95,7 @@ void *MemoryAllocator::mem_alloc(size_t size)
         blk->next = nullptr;
     }
 
-    // Preskačemo header i vraćamo korisniku njegov deo.
+    // vraca korisnici deo memorije
 
     return (char *) blk + sizeof(BlockHeader);
 }
