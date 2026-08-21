@@ -17,16 +17,17 @@ TCB *TCB::createThread(Body start_routine, void *arg, void *stack)
 
 void TCB::yield()
 {
-    __asm__ __volatile__("li a0, 0x13");
-    __asm__ volatile("ecall");
-     // dispatch();
+    register uint64 a0 asm("a0") = 0x13;
+    __asm__ volatile("ecall" : "+r"(a0) : : "memory");
+
+    // dispatch();
 }
 
 int TCB::threadExit()
 {
     TCB *current = running;
 
-    if (current == nullptr)
+    if (current == nullptr || current->isFinished())
     {
         return -1;
     }
@@ -38,7 +39,12 @@ int TCB::threadExit()
 void TCB::dispatch()
 {
     TCB *old = running;
-    if (!old->isFinished()) { Scheduler::put(old); }
+
+    if (!old->isFinished())
+    {
+        // printStringMoj("\nPOZVAN DISPATCH\n");
+        Scheduler::put(old);
+    }
     running = Scheduler::get();
 
     TCB::contextSwitch(&old->context, &running->context);
@@ -46,12 +52,14 @@ void TCB::dispatch()
 
 void TCB::threadWrapper()
 {
-
-    Riscv::popSppSpie();
-    if (running ->body == nullptr)
+    if (running->body == nullptr)
     {
         Riscv::ms_sstatus(Riscv::SSTATUS_SPP);
+    }else
+    {
+        Riscv::mc_sstatus(Riscv::SSTATUS_SPP);
     }
+    Riscv::popSppSpie();
     running->body(running->arg);
     running->setFinished(true);
 

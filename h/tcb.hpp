@@ -6,6 +6,7 @@
 #define OS1_VEZBE07_RISCV_CONTEXT_SWITCH_1_SYNCHRONOUS_CCB_HPP
 
 #include "print.hpp"
+#include "riscv.hpp"
 #include "../lib/hw.h"
 #include "scheduler.hpp"
 #include "syscall_c.h"
@@ -50,22 +51,21 @@ private:
                                                       context({
                                                           (uint64) &threadWrapper,
                                                           this->stack != nullptr
-                                                              ? (uint64) &this->stack[STACK_SIZE - 1]
+                                                              ? (uint64) &this->stack[STACK_SIZE-1]
                                                               : 0
                                                       }),
                                                       finished(false), arg(arg)
     {
         if (body != nullptr)
         {
-            printStringMoj("USAO");
             Scheduler::put(this);
         }
     }
 
     struct Context
     {
-        uint64 ra;
-        uint64 sp;
+        uint64 ra, sp;
+        uint64 s0, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11;
     };
 
     Body body;
@@ -80,7 +80,7 @@ private:
     friend class Riscv;
 
 
-    static uint64 constexpr STACK_SIZE = 1024;
+    static uint64 constexpr STACK_SIZE = DEFAULT_STACK_SIZE / sizeof(uint64);
 
     uint64 timeSlice;
 

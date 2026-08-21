@@ -38,7 +38,7 @@ int mem_free(void *ptr)
 int thread_create(thread_t *handle, void (*start_routine)(void *), void *arg)
 {
     uint64 broj = 0x11;
-    void *stack = mem_alloc(broj);
+    void *stack = mem_alloc(DEFAULT_STACK_SIZE);
     if (!stack || stack == nullptr || stack == 0 || !handle)
     {
         return -1;
