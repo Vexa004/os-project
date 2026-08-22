@@ -139,8 +139,8 @@ uint64 Riscv::handleEnvironmentCall(uint64 code, uint64 a1, uint64 a2, uint64 a3
         case 0x22: // sem_close
             {
                 sem_t csem = (sem_t) a1;
-                csem->semClose();
-                delete csem;
+                return csem->semClose();
+                //delete csem;
                 return 0;
                 break;
             }
