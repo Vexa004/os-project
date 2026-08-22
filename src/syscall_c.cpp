@@ -87,32 +87,97 @@ int thread_exit()
 
 int sem_open(sem_t *handle, unsigned init)
 {
-    return 0;
+    uint64 broj = 0x21;
+    if (!handle || init < 0)
+    {
+        return -1;
+    }
+    register uint64 a0 asm("a0") = broj;
+    register uint64 a1 asm("a1") = (uint64) handle;
+    register uint64 a2 asm("a2") = (uint64) init;
+    __asm__ volatile("ecall"
+        : "+r"(a0)
+        : "r"(a1), "r"(a2)
+        : "memory");
+    return (int) a0;
 }
 
 int sem_close(sem_t handle)
 {
-    return 0;
+    uint64 broj = 0x22;
+    if (!handle)
+    {
+        return -1;
+    }
+    register uint64 a0 asm("a0") = broj;
+    register uint64 a1 asm("a1") = (uint64) handle;
+    __asm__ volatile("ecall"
+        : "+r"(a0)
+        : "r"(a1)
+        : "memory");
+    return (int) a0;
 }
 
 int sem_wait(sem_t id)
 {
-    return 0;
+    uint64 broj = 0x23;
+    if (!id)
+    {
+        return -1;
+    }
+    register uint64 a0 asm("a0") = broj;
+    register uint64 a1 asm("a1") = (uint64) id;
+    __asm__ volatile("ecall"
+        : "+r"(a0)
+        : "r"(a1)
+        : "memory");
+    return (int) a0;
 }
 
 int sem_signal(sem_t id)
 {
-    return 0;
+    uint64 broj = 0x24;
+    if (!id)
+    {
+        return -1;
+    }
+    register uint64 a0 asm("a0") = broj;
+    register uint64 a1 asm("a1") = (uint64) id;
+    __asm__ volatile("ecall"
+        : "+r"(a0)
+        : "r"(a1)
+        : "memory");
+    return (int) a0;
 }
 
 int sem_wait_n(sem_t id, unsigned n)
 {
-    return 0;
+    if (!id || n == 0)
+        return -1;
+    uint64 broj = 0x25;
+    register uint64 a0 asm("a0") = broj;
+    register uint64 a1 asm("a1") = (uint64) id;
+    register uint64 a2 asm("a2") = (uint64) n;
+    __asm__ volatile("ecall"
+        : "+r"(a0)
+        : "r"(a1), "r"(a2)
+        : "memory");
+    return (int) a0;
 }
 
 int sem_signal_n(sem_t id, unsigned n)
 {
-    return 0;
+    if (!id || n == 0)
+        return -1;
+    uint64 broj = 0x26;
+    register uint64 a0 asm("a0") = broj;
+    register uint64 a1 asm("a1") = (uint64) id;
+    register uint64 a2 asm("a2") = (uint64) n;
+    __asm__ volatile("ecall"
+        : "+r"(a0)
+        : "r"(a1), "r"(a2)
+        : "memory");
+    return (int) a0;
 }
 
 //endregion
@@ -136,7 +201,7 @@ char getc()
         : "+r"(a0)
         :
         : "memory");
-    return (char)a0;
+    return (char) a0;
 }
 
 void putc(char c)

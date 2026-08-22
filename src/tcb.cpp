@@ -40,12 +40,16 @@ void TCB::dispatch()
 {
     TCB *old = running;
 
-    if (!old->isFinished())
+    if (!old->isFinished() && !old->getWaiting())
     {
         // printStringMoj("\nPOZVAN DISPATCH\n");
         Scheduler::put(old);
     }
     running = Scheduler::get();
+    if (old == running)
+    {
+        printStringMoj("\nDISPATCH: old == running\n");
+    }
 
     TCB::contextSwitch(&old->context, &running->context);
 }

@@ -40,7 +40,7 @@ private:
 
     void *arg;
 };
-/*
+
 class Semaphore
 {
 public:
@@ -55,7 +55,7 @@ public:
 private:
     sem_t myHandle;
 };
-
+/*
 class PeriodicThread : public Thread
 {
 public:
@@ -71,7 +71,7 @@ protected:
 private:
     time_t period;
 };
-
+*/
 class Console
 {
 public:
@@ -79,6 +79,6 @@ public:
 
     static void putc(char);
 };
-*/
+
 
 #endif //PROJECT_BASE_V1_1_SYSCALL_CPP_HPP

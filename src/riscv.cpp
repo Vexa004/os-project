@@ -8,6 +8,7 @@
 #include "../h/print.hpp"
 #include "../h/tcb.hpp"
 #include "../lib/console.h"
+#include "../h/CSemaphore.hpp"
 
 void Riscv::popSppSpie()
 {
@@ -75,7 +76,7 @@ uint64 Riscv::handleEnvironmentCall(uint64 code, uint64 a1, uint64 a2, uint64 a3
     // uint64 retVal;
     switch (code)
     {
-        case 0x01:
+        case 0x01: // mem_alloc
             {
                 /*printStringMoj("HOCU SIZE2: \n");
                 printIntegerMoj((uint64)a1);
@@ -85,13 +86,13 @@ uint64 Riscv::handleEnvironmentCall(uint64 code, uint64 a1, uint64 a2, uint64 a3
                 return (uint64) ptr;
                 break;
             }
-        case 0x02:
+        case 0x02: // mem_free
             {
                 int ret = MemoryAllocator::getInstance().mem_free((void *) a1);
                 return ret;
                 break;
             }
-        case 0x11:
+        case 0x11: // thread_create
             {
                 thread_t *thr = (thread_t *) a1;
                 TCB::Body body = (TCB::Body) a2;
@@ -107,24 +108,90 @@ uint64 Riscv::handleEnvironmentCall(uint64 code, uint64 a1, uint64 a2, uint64 a3
                 }
                 break;
             }
-        case 0x12:
+        case 0x12: // thread_exit
             {
                 TCB::threadExit();
                 break;
                 return 0;
             }
-        case 0x13:
+        case 0x13: // thread_dispatch
             {
                 TCB::dispatch();
                 break;
                 return 0;
             }
-        case 0x41:
+
+        case 0x21: // sem_open
+            {
+                sem_t *sem = (sem_t *) a1;
+                unsigned init = (unsigned) a2;
+                CSemaphore *csem = new CSemaphore(init);
+                if (csem == nullptr)
+                {
+                    return -1;
+                } else
+                {
+                    *sem = csem;
+                    return 0;
+                }
+                break;
+            }
+        case 0x22: // sem_close
+            {
+                sem_t csem = (sem_t) a1;
+                csem->semClose();
+                delete csem;
+                return 0;
+                break;
+            }
+        case 0x23: // sem_wait
+            {
+                sem_t csem = (sem_t) a1;
+                if (csem == nullptr)
+                {
+                    return -1;
+                }
+                return csem->wait();
+                break;
+            }
+        case 0x24: // sem_signal
+            {
+                sem_t csem = (sem_t) a1;
+                if (csem == nullptr)
+                {
+                    return -1;
+                }
+                return csem->signal();
+                break;
+            }
+        case 0x25: // sem_wait_n
+            {
+                CSemaphore *csem = (CSemaphore *) a1;
+                unsigned n = (unsigned) a2;
+                if (csem == nullptr || n == 0)
+                {
+                    return -1;
+                }
+                return csem->waitN(n);
+                break;
+            }
+        case 0x26: // sem_signal_n
+            {
+                CSemaphore *csem = (CSemaphore *) a1;
+                unsigned n = (unsigned) a2;
+                if (csem == nullptr || n == 0)
+                {
+                    return -1;
+                }
+                return csem->signalN(n);
+                break;
+            }
+        case 0x41: // GetC
             {
                 return __getc();
                 break;
             }
-        case 0x42:
+        case 0x42: // PutC
             {
                 __putc(a1);
                 return 0;

@@ -43,6 +43,27 @@ public:
         return arg;
     }
 
+    bool getWaiting() const
+    {
+        return waiting;
+    }
+    bool getWaitSemErr()
+    {
+        return waitSemErr;
+    }
+
+    void setWaitSemErr(bool v)
+    {
+        this->waitSemErr = v;
+    }
+
+
+
+    void setWaiting(bool waiting)
+    {
+        this->waiting = waiting;
+    }
+
     static int threadExit();
 
 private:
@@ -54,7 +75,7 @@ private:
                                                               ? (uint64) &this->stack[STACK_SIZE-1]
                                                               : 0
                                                       }),
-                                                      finished(false), arg(arg)
+                                                      finished(false), waiting(false), waitSemErr(false), arg(arg)
     {
         if (body != nullptr)
         {
@@ -72,6 +93,8 @@ private:
     uint64 *stack;
     Context context;
     bool finished;
+    bool waiting;
+    bool waitSemErr;
     void *arg;
 
     static void contextSwitch(Context *oldContext, Context *runningContext);

@@ -26,8 +26,8 @@ void thread_dispatch();
 
 // *Semaphore*
 
-class _sem;
-typedef _sem *sem_t;
+class CSemaphore;
+typedef CSemaphore *sem_t;
 
 int sem_open(
     sem_t *handle,
