@@ -12,7 +12,6 @@
 
 void Riscv::popSppSpie()
 {
-    // Riscv::mc_sstatus(Riscv::SSTATUS_SPP);
     __asm__ volatile ("csrw sepc, ra");
     __asm__ volatile ("sret");
 }
@@ -120,6 +119,65 @@ uint64 Riscv::handleEnvironmentCall(uint64 code, uint64 a1, uint64 a2, uint64 a3
                 break;
                 return 0;
             }
+        case 0x14: // get_thread_id
+            {
+                return TCB::running->getId();
+                break;
+            }
+        case 0x15: // thread_join
+            {
+                thread_t *thr = (thread_t *) a1;
+                if (thr == nullptr)
+                {
+                    return -1;
+                }
+                TCB::thread_join(thr);
+                return 0;
+                break;
+            }
+
+        case 0x16: // thread send
+            {
+                thread_t thr = (thread_t) a1;
+                char *message = (char *) a2;
+                if (thr == nullptr)
+                {
+                    return -1;
+                }
+                thr->send(message);
+                return 0;
+                break;
+            }
+        case 0x17: // thread receive
+            {
+                char *message = TCB::running->receive();
+                return (uint64) message;
+                break;
+            }
+        case 0x18: // thread barrier
+            {
+                TCB::barrier();
+                break;
+            }
+        case 0x19: // barrier Limit
+            {
+                auto limit = a1;
+
+                TCB::setLimitBarrier(limit);
+                break;
+            }
+        case 0x30: // thread pair
+            {
+                auto thr1 = (thread_t) a1;
+                auto thr2 = (thread_t) a2;
+                thr1->pair(thr2);
+                break;
+            }
+        case 0x31: // thread pair sync
+            {
+                TCB::running->sync();
+                break;
+            }
 
         case 0x21: // sem_open
             {
@@ -167,7 +225,7 @@ uint64 Riscv::handleEnvironmentCall(uint64 code, uint64 a1, uint64 a2, uint64 a3
         case 0x25: // sem_wait_n
             {
                 CSemaphore *csem = (CSemaphore *) a1;
-                unsigned n = (unsigned) a2;
+                int n = (int) a2;
                 if (csem == nullptr || n == 0)
                 {
                     return -1;

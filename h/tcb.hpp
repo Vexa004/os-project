@@ -11,15 +11,23 @@
 #include "scheduler.hpp"
 #include "syscall_c.h"
 
+class CSemaphore;
+
 // Coroutine Control Block
 class TCB
 {
 public:
-    ~TCB() { delete[] stack; }
+    ~TCB()
+    {
+        delete[] stack;
+    }
 
-    bool isFinished() const { return finished; }
+    bool isFinished() const;
 
     void setFinished(bool value) { finished = value; }
+
+    static uint64 running_id;
+
 
     uint64 getTimeSlice() const
     {
@@ -47,6 +55,7 @@ public:
     {
         return waiting;
     }
+
     bool getWaitSemErr()
     {
         return waitSemErr;
@@ -58,7 +67,6 @@ public:
     }
 
 
-
     void setWaiting(bool waiting)
     {
         this->waiting = waiting;
@@ -66,22 +74,49 @@ public:
 
     static int threadExit();
 
-private:
-    explicit TCB(Body body, void *arg, void *stack) : body(body),
-                                                      stack((uint64 *) stack),
-                                                      context({
-                                                          (uint64) &threadWrapper,
-                                                          this->stack != nullptr
-                                                              ? (uint64) &this->stack[STACK_SIZE-1]
-                                                              : 0
-                                                      }),
-                                                      finished(false), waiting(false), waitSemErr(false), arg(arg)
+    uint64 getId();
+
+    typedef TCB *thread_t;
+
+    void send(char *message);
+
+    char *receive();
+
+    static void setLimitBarrier(uint64 limit)
     {
-        if (body != nullptr)
-        {
-            Scheduler::put(this);
-        }
+        barrierLimit = limit;
     }
+
+    static void barrier();
+
+    void pair(TCB* other);
+
+    void sync();
+
+private:
+    char *msg;
+
+    bool syncedBool;
+
+    CSemaphore *synced;
+
+    TCB* pairThread;
+
+    static CSemaphore *barrierMutex;
+
+    static CSemaphore *gate;
+
+    static uint64 barrierCounter;
+
+    static uint64 barrierLimit;
+
+    static void thread_join(thread_t *handle);
+
+    uint64 id;
+
+    CSemaphore *semSend, *semReceive;
+
+    explicit TCB(Body body, void *arg, void *stack);
 
     struct Context
     {

@@ -19,9 +19,23 @@ public:
 
     int start();
 
+    uint64 getThreadId();
+
     static void dispatch();
 
     static int sleep(time_t);
+
+    void join();
+
+    void send(char *);
+
+    static char *receive();
+
+    static void barrier();
+
+    static void pair(Thread *t1, Thread *t2);
+
+    void sync();
 
 protected:
     Thread();
@@ -31,7 +45,6 @@ protected:
     }
 
 private:
-
     static void threadWrapper(void *arg);
 
     thread_t myHandle;
@@ -52,9 +65,14 @@ public:
 
     int signal();
 
+    int waitN(int n);
+
+    int signalN(int n);
+
 private:
     sem_t myHandle;
 };
+
 /*
 class PeriodicThread : public Thread
 {

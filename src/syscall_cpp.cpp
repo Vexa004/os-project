@@ -1,5 +1,7 @@
 #include "../h/syscall_cpp.hpp"
 
+#include "../h/tcb.hpp"
+
 
 Thread::Thread(void (*body)(void *), void *arg)
 {
@@ -45,6 +47,45 @@ int Thread::start()
     return thread_create(&myHandle, threadWrapper, this);
 }
 
+uint64 Thread::getThreadId()
+{
+    return myHandle->getId();
+}
+
+void Thread::join()
+{
+    if (myHandle)
+    {
+        thread_join(&myHandle);
+    }
+}
+
+void Thread::send(char *message)
+{
+    ::send(myHandle, message);
+}
+
+char *Thread::receive()
+{
+    return ::receive();
+}
+
+void Thread::barrier()
+{
+    return ::barrier();
+}
+
+void Thread::pair(Thread *t1, Thread *t2)
+{
+    ::pair(t1->myHandle, t2->myHandle);
+}
+
+void Thread::sync()
+{
+    ::sync();
+}
+
+
 Semaphore::Semaphore(unsigned init) : myHandle(nullptr)
 {
     sem_open(&myHandle, init);
@@ -63,6 +104,16 @@ int Semaphore::wait()
 int Semaphore::signal()
 {
     return sem_signal(myHandle);
+}
+
+int Semaphore::signalN(int n)
+{
+    return sem_signal_n(myHandle, n);
+}
+
+int Semaphore::waitN(int n)
+{
+    return sem_wait_n(myHandle, n);
 }
 
 char Console::getc()

@@ -16,9 +16,9 @@ int CSemaphore::block()
         thread_dispatch();
         if (TCB::running->getWaitSemErr())
         {
-            return 0;
+            return -2;
         }
-        return -2;
+        return 0;
     }
     return -1;
 }
@@ -71,12 +71,6 @@ int CSemaphore::signalN(unsigned n)
 
 int CSemaphore::waitN(unsigned n)
 {
-    val -= (int)n;
-    if (val >= 0)
-    {
-        return 0;
-    } else
-    {
-       return block();
-    }
+    for (int i = 0; i < (int)n; i++) wait();
+    return 0;
 }

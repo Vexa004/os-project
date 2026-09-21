@@ -24,6 +24,22 @@ int thread_exit();
 
 void thread_dispatch();
 
+int get_thread_id();
+
+void thread_join(thread_t *handle);
+
+void send(thread_t handle, char *message);
+
+char *receive();
+
+void barrier();
+
+void setBarrierLimit(int limit);
+
+void pair(thread_t handle1, thread_t handle2);
+
+void sync();
+
 // *Semaphore*
 
 class CSemaphore;
@@ -41,10 +57,10 @@ int sem_wait(sem_t id);
 int sem_signal(sem_t id);
 
 int sem_wait_n(sem_t id,
-               unsigned n);
+               int n);
 
 int sem_signal_n(sem_t id,
-unsigned n);
+                 unsigned n);
 
 
 // *Time*

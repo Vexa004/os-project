@@ -81,6 +81,103 @@ int thread_exit()
     return (int) a0;
 }
 
+int get_thread_id()
+{
+    uint64 broj = 0x14;
+    register uint64 a0 asm("a0") = broj;
+    __asm__ volatile("ecall"
+        :"+r"(a0)
+        :
+        :"memory");
+    return (int) a0;
+}
+
+void thread_join(thread_t *handle)
+{
+    uint64 broj = 0x15;
+    register uint64 a0 asm("a0") = broj;
+    register uint64 a1 asm("a1") = (uint64) handle;
+    __asm__ volatile("ecall"
+        :"+r"(a0)
+        :"r"(a1)
+        :"memory"
+    );
+}
+
+void send(thread_t handle, char *message)
+{
+    uint64 broj = 0x16;
+    register uint64 a0 asm("a0") = broj;
+    register uint64 a1 asm("a1") = (uint64) handle;
+    register char *a2 asm("a2") = message;
+    __asm__ volatile("ecall"
+        :"+r"(a0)
+        :"r"(a1), "r"(a2)
+        :"memory"
+    );
+}
+
+char *receive()
+{
+    uint64 broj = 0x17;
+    register uint64 a0 asm("a0") = broj;
+    __asm__ volatile("ecall"
+        :"+r"(a0)
+        :
+        :"memory"
+    );
+    return reinterpret_cast<char *>(a0);
+}
+
+void barrier()
+{
+    uint64 broj = 0x18;
+    register uint64 a0 asm("a0") = broj;
+    __asm__ volatile("ecall"
+        :"+r"(a0)
+        :
+        :"memory"
+    );
+}
+
+void setBarrierLimit(int limit)
+{
+    uint64 broj = 0x19;
+
+    register uint64 a0 asm("a0") = broj;
+    register uint64 a1 asm("a1") = (uint64) limit;
+    __asm__ volatile("ecall"
+        :"+r"(a0)
+        :"r"(a1)
+        :"memory"
+    );
+}
+
+void pair(thread_t handle1, thread_t handle2)
+{
+    uint64 broj = 0x30;
+    register uint64 a0 asm("a0") = broj;
+    register auto a1 asm("a1") = (uint64) handle1;
+    register auto a2 asm("a2") = (uint64) handle2;
+    __asm__ volatile("ecall"
+        :"+r"(a0)
+        :"r"(a1),"r"(a2)
+        :"memory"
+    );
+}
+
+void sync()
+{
+    uint64 broj = 0x31;
+
+    register uint64 a0 asm("a0") = broj;
+    __asm__ volatile("ecall"
+        :"+r"(a0)
+        :
+        :"memory"
+    );
+}
+
 //endregion
 
 //region Semaphore
@@ -150,7 +247,7 @@ int sem_signal(sem_t id)
     return (int) a0;
 }
 
-int sem_wait_n(sem_t id, unsigned n)
+int sem_wait_n(sem_t id, int n)
 {
     if (!id || n == 0)
         return -1;

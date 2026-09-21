@@ -11,12 +11,16 @@
 class CSemaphore
 {
 public:
-    CSemaphore(unsigned init = 1): val(init){}
+    CSemaphore(unsigned init = 1) : val(init)
+    {
+    }
 
     int wait();
+
     int signal();
 
     int waitN(unsigned n);
+
     int signalN(unsigned n);
 
     int semClose();
@@ -25,10 +29,11 @@ public:
 
 protected:
     int block();
+
     int unblock();
 
 private:
-     int val;
+    int val;
     List<TCB> blockedQueue;
 };
 
