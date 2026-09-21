@@ -86,6 +86,22 @@ void Thread::sync()
 }
 
 
+void Thread::upari(Thread *t1, Thread *t2)
+{
+    ::upari(t1->myHandle, t2->myHandle);
+}
+
+void Thread::blokiraj()
+{
+    ::blokiraj();
+}
+
+void Thread::signalSemaforu(Thread *t1)
+{
+    ::signalUparenSemafor(t1->myHandle);
+}
+
+
 Semaphore::Semaphore(unsigned init) : myHandle(nullptr)
 {
     sem_open(&myHandle, init);

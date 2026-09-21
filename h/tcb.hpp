@@ -89,18 +89,30 @@ public:
 
     static void barrier();
 
-    void pair(TCB* other);
+    void pair(TCB *other);
 
     void sync();
+
+    void upari(TCB* other);
+
+    void blokiraj();
 
 private:
     char *msg;
 
     bool syncedBool;
 
+    CSemaphore *uparenSemafor;
+
+    TCB **upareniThreadovi;
+
+    uint64 brojUparenih;
+
+    uint64 kapacitet;
+
     CSemaphore *synced;
 
-    TCB* pairThread;
+    TCB *pairThread;
 
     static CSemaphore *barrierMutex;
 

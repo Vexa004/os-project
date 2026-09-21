@@ -37,6 +37,12 @@ public:
 
     void sync();
 
+    static void upari(Thread *t1, Thread*t2);
+
+    void blokiraj();
+
+    void signalSemaforu(Thread *t1);
+
 protected:
     Thread();
 

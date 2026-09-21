@@ -40,6 +40,12 @@ void pair(thread_t handle1, thread_t handle2);
 
 void sync();
 
+void upari(thread_t t1, thread_t t2);
+
+void blokiraj();
+
+void signalUparenSemafor(thread_t);
+
 // *Semaphore*
 
 class CSemaphore;

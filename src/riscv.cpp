@@ -178,6 +178,24 @@ uint64 Riscv::handleEnvironmentCall(uint64 code, uint64 a1, uint64 a2, uint64 a3
                 TCB::running->sync();
                 break;
             }
+        case 0x32: // thread pair sem
+            {
+                auto *thr1 = (thread_t) a1;
+                auto *thr2 = (thread_t) a2;
+                thr1->upari(thr2);
+                break;
+            }
+        case 0x33: // thread blokiraj Upareni semafori
+            {
+                TCB::running->blokiraj();
+                break;
+            }
+        case 0x34: // signal thread uparen Semafor
+            {
+                auto *thr = (thread_t) a1;
+                thr->uparenSemafor->signal();
+                break;
+            }
 
         case 0x21: // sem_open
             {

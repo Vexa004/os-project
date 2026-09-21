@@ -25,6 +25,8 @@ public:
 
     int semClose();
 
+    bool tryToWait();
+
     ~CSemaphore() = default;
 
 protected:

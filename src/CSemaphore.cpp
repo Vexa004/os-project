@@ -71,6 +71,16 @@ int CSemaphore::signalN(unsigned n)
 
 int CSemaphore::waitN(unsigned n)
 {
-    for (int i = 0; i < (int)n; i++) wait();
+    for (int i = 0; i < (int) n; i++) wait();
     return 0;
+}
+
+bool CSemaphore::tryToWait()
+{
+    if (val > 0)
+    {
+        val--;
+        return true;
+    }
+    return false;
 }

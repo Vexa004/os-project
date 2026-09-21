@@ -38,6 +38,15 @@ TCB::TCB(Body body, void *arg, void *stack) : body(body),
     pairThread = nullptr;
     synced = new CSemaphore(0);
     syncedBool = false;
+
+    uparenSemafor = new CSemaphore();
+    upareniThreadovi = new TCB *[10];
+    for (int i = 0; i < 10; i++)
+    {
+        upareniThreadovi[i] = nullptr;
+    }
+    brojUparenih = 0;
+    kapacitet = 10;
     if (body != nullptr)
     {
         Scheduler::put(this);
@@ -196,3 +205,69 @@ void TCB::sync()
     pairThread->syncedBool = false;
 }
 */
+
+void TCB::upari(TCB *other)
+{
+    if (other == nullptr || other == this)return;
+
+    for (uint64 i = 0; i < brojUparenih; i++)
+    {
+        if (upareniThreadovi[i] == other)return;
+    }
+
+    if (brojUparenih == kapacitet)return;
+
+    /*
+
+    if (brojUparenih == kapacitet)
+    {
+        kapacitet *= 2;
+        TCB **novi;
+        novi = static_cast<TCB **>(::operator new[](sizeof(TCB *) * kapacitet));
+        for (uint64 i = 0; i < brojUparenih; i++)
+        {
+            novi[i] = upareniThreadovi[i];
+        }
+        delete []upareniThreadovi;
+        upareniThreadovi = novi;
+    }*/
+    if (other->brojUparenih == other->kapacitet)
+    {
+        return;
+    }
+
+    upareniThreadovi[brojUparenih++] = other;
+
+    /*
+    if (other->brojUparenih == other->kapacitet)
+    {
+        other->kapacitet *= 2;
+        TCB **novi;
+        novi = static_cast<TCB **>(::operator new[](sizeof(TCB *) * other->kapacitet));
+        // novi = new TCB *[brojUparenih];
+
+        for (uint64 i = 0; i < other->brojUparenih; i++)
+        {
+            novi[i] = other->upareniThreadovi[i];
+        }
+        delete []other->upareniThreadovi;
+        other->upareniThreadovi = novi;
+    }*/
+
+    other->upareniThreadovi[other->brojUparenih++] = this;
+}
+
+void TCB::blokiraj()
+{
+    if (uparenSemafor->tryToWait())
+    {
+        return;
+    }
+
+    for (uint64 i = 0; i < brojUparenih; i++)
+    {
+        if (upareniThreadovi[i]->uparenSemafor->tryToWait())return;
+    }
+
+    uparenSemafor->wait();
+}
