@@ -8,4 +8,4 @@ The primary motivation behind this project was to gain deep understanding of ope
 
 This project was developed as the university assignment for the "Operating Systems 1" course at the University of Belgrade School of Electrical Engineering, majoring in Software Engineering. Please refer to the file for detailed assignment instructions.
 
-[Projektni zadatak 2026 v1.0 (1).pdf](https://github.com/user-attachments/files/34799585/Projektni.zadatak.2026.v1.0.1.pdf)
+
